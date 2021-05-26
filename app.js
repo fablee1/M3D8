@@ -34,26 +34,23 @@ const generateCard = (item) => {
     const col = document.createElement('div')
     col.classList = 'col col-md-6'
 
-    col.innerHtml = `
-    <div class="card">
+    col.innerHTML = `
+    <div class="card mb-3">
         <img src=${item.imageUrl} class="card-img-top" alt="...">
         <div class="card-body">
             <h5 class="card-title">${item.name}</h5>
-            <p class="sub-title">${item.brand}</p>
+            <p class="sub-title">Brand: ${item.brand}</p>
             <p class="card-text">${item.description}</p>
-            <p class="item-price">${item.price}</p>
+            <p class="item-price">Price: ${item.price}$</p>
         </div>
     </div>
     `
-    console.log(col.outerHtml)
-    return col.outerHtml
+    return col.outerHTML
 }
 
 const display = (items) => {
-    console.log(items)
     if(items.length > 0) {
-        console.log(items.map(item => console.log(item)))
-        document.getElementById('cards').innerHTML = items.map(item => generateCard(item))
+        document.getElementById('cards').innerHTML = items.map(item => generateCard(item)).join('')
     } else {
         alert('No items')
     }
