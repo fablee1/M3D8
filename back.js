@@ -6,11 +6,11 @@ const handleData = async (method='GET', body=false, id='') => {
                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MGFlMzU3MWNlYWY0ODAwMTVjOTE4NjIiLCJpYXQiOjE2MjIwMjk2ODEsImV4cCI6MTYyMzIzOTI4MX0.hWEhrY4Maa8j-xYWTEzS0vKjwvhbQ5eSApEaI2_tZKg'
                   }
     
-    if(method != 'GET' && method != 'POST') {
+    if((method != 'POST') && (method != 'GET' || (method == 'GET' && id != ''))) {
         url += '/' + id
         console.log(url)
     }
-    if(method == 'POST' && body) {
+    if(method == 'POST' || method == 'PUT') {
         bodyContent = body
     } 
 
@@ -47,6 +47,14 @@ const formVars = () => {
     return [name, description, brand, image, price]
 }
 
+const resetForm = () => {
+    document.getElementById('name').value = ''
+    document.getElementById('description').value = ''
+    document.getElementById('brand').value = ''
+    document.getElementById('image').value = ''
+    document.getElementById('price').value = ''
+}
+
 const submitItem = async () => {
 
     let formFields = formVars()
@@ -54,6 +62,8 @@ const submitItem = async () => {
     const itemData = JSON.stringify({"name": formFields[0], "description": formFields[1], "brand": formFields[2], "imageUrl": formFields[3], "price": formFields[4]})
 
     await handleData("POST", itemData)
+
+    resetForm()
 }
 
 const genForm = async (type) => {
@@ -86,6 +96,7 @@ const genForm = async (type) => {
                     <label for="price" class="form-label">Price</label>
                     <input type="number" class="form-control" id="price" placeholder="100" min="0"></input>
                 </div>
+                <button type="button" class="btn btn-success mb-2 border-white" onclick="submitItem()">Add Item</button>
             </form>
         `
     } else {
@@ -94,7 +105,7 @@ const genForm = async (type) => {
             bg_color = '#ffc107'
             btn = (id) => {
                 let btn1 = `
-                    <button type="button" class="btn btn-warning w-100 border-white">Edit Item</button>
+                    <button type="button" class="btn btn-warning w-100 border-white" onclick="editItem('${id}')">Edit Item</button>
                 `
                 return btn1
             }
@@ -158,9 +169,53 @@ const collapse = (type) => {
     }
 }
 
-const deleteItem = (id) => {
-    console.log(id)
-    handleData('DELETE', false, id)
+const editItem = async (id) => {
+    let item = await handleData('GET', false, id)
+    
+    const collapseBody = document.getElementById('formcollapse')
+    const formCol = document.getElementById('formcol')
+
+    formCol.style.backgroundColor = '#ffc107'
+
+    collapseBody.innerHTML = `
+            <form>
+                <div class="mb-3 mt-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" placeholder="Example" value="${item.name}">
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" rows="3">${item.description}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="brand" class="form-label">Brand</label>
+                    <input class="form-control" id="brand" placeholder="Example" value="${item.brand}"></input>
+                </div>
+                <div class="mb-3">
+                    <label for="image" class="form-label">Image URL</label>
+                    <input class="form-control" id="image" placeholder="Image url" value="${item.imageUrl}"></input>
+                </div>
+                <div class="mb-3">
+                    <label for="price" class="form-label">Price</label>
+                    <input type="number" class="form-control" id="price" placeholder="100" min="0" value="${item.price}"></input>
+                </div>
+                <button type="button" class="btn btn-success mb-2" onclick="save('${item._id}')">Save</button>
+            </form>
+        `
+
+}
+
+const deleteItem = async (id) => {
+    await handleData('DELETE', false, id)
+    await genForm('delete')
+}
+
+const save = async (id) => {
+    let formFields = formVars()
+    const itemData = JSON.stringify({"name": formFields[0], "description": formFields[1], "brand": formFields[2], "imageUrl": formFields[3], "price": formFields[4]})
+    await handleData('PUT', itemData, id)
+    await genForm('edit')
+    resetForm()
 }
 
 window.onload = () => {
