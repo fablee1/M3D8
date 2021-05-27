@@ -32,16 +32,16 @@ const getData = async (method='GET', body=false) => {
 
 const generateCard = (item) => {
     const col = document.createElement('div')
-    col.classList = 'col col-md-6'
+    col.classList = 'col col-md-3'
 
     col.innerHTML = `
     <div class="card mb-3">
-        <img src=${item.imageUrl} class="card-img-top" alt="...">
+        <img src=${item.imageUrl} class="card-img-top w-100" alt="...">
         <div class="card-body">
             <h5 class="card-title">${item.name}</h5>
             <p class="sub-title">Brand: ${item.brand}</p>
             <p class="card-text">${item.description}</p>
-            <p class="item-price">Price: ${item.price}$</p>
+            <span class="badge">Price: ${item.price}$</span>
         </div>
     </div>
     `
